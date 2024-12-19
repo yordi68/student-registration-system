@@ -1,8 +1,10 @@
 {
   "name": "student-service",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
+    "start": "nodemon run server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

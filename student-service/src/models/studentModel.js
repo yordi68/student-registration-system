@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const studentSchema = new mongoose.Schema({
+const studentSchema = new Schema({
   name: { type: String, required: true },
   age: { type: Number, required: true },
   email: { type: String, required: true, unique: true },
   enrolledCourses: [{ type: String }], // Array of course IDs
 });
 
-module.exports = mongoose.model('Student', studentSchema);
+export default model('Student', studentSchema);

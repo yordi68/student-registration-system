@@ -1,4 +1,4 @@
-const Student = require('../models/studentModel');
+import Student from '../models/studentModel.js';
 
 // Create a new student
 const createStudent = async (req, res) => {
@@ -56,7 +56,7 @@ const deleteStudent = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   createStudent,
   getAllStudents,
   getStudentById,
