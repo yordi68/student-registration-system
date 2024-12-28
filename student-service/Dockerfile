@@ -1,5 +1,5 @@
 FROM node:16
-WORKDIR /src
+WORKDIR /
 COPY . .
 RUN npm install
-CMD ["node", "app/index.js"]
+CMD ["node", "/server.js"]

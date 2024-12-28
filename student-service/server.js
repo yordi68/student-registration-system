@@ -1,15 +1,14 @@
 import 'dotenv/config';
 import app from './app.js';
 import connectDB from './src/config/db.js';
-import amqplib from 'amqplib';
-
+import  amqplib from 'amqplib';
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST || "localhost";
 const QUEUE_NAME = "student_updates";
 
 async function connectToRabbitMQ() {
   try {
-    const connection = await amqp.connect(`amqp://${RABBITMQ_HOST}`);
+    const connection = await amqplib.connect(`amqp://${RABBITMQ_HOST}`);
     const channel = await connection.createChannel();
     await channel.assertQueue(QUEUE_NAME);
     console.log(`Connected to RabbitMQ, queue: ${QUEUE_NAME}`);
