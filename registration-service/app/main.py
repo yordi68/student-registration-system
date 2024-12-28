@@ -3,15 +3,29 @@ from app.routes import router
 import pika
 import os
 import threading
+import time
+
 
 # rabbitmq set up
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 QUEUE_NAME = "student_updates"
 
 def start_rabbitmq_listener():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
+    while True:
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
+            print("Registration Service Connected with RabbitMQ")
+            break
+        except pika.exceptions.AMQPConnectionError:
+            print("RabbitMQ not ready, retrying in 5 seconds...")
+            time.sleep(5)
+
     channel = connection.channel()
-    channel.queue_declare(queue=QUEUE_NAME)
+    try:
+        channel.queue_declare(queue=QUEUE_NAME, durable=True)
+    except pika.exceptions.ChannelClosedByBroker as e:
+        print(f"Queue declaration failed: {e}")
+        return
 
     def callback(ch, method, properties, body):
         print("Received message:", body.decode())

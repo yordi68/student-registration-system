@@ -11,7 +11,7 @@ async function connectToRabbitMQ() {
     const connection = await amqplib.connect(`amqp://${RABBITMQ_HOST}`);
     const channel = await connection.createChannel();
     await channel.assertQueue(QUEUE_NAME);
-    console.log(`Connected to RabbitMQ, queue: ${QUEUE_NAME}`);
+    console.log(`Student Service has Connected to RabbitMQ, queue: ${QUEUE_NAME}`);
 
     // Example: Publish a message to the queue
     const message = JSON.stringify({ studentId: "12345", status: "registered" });
