@@ -54,55 +54,34 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 
 ## Services Overview
 
-### 1. Driver Service (Node.js, MVC)
+### 1. Registration Service (FastAPI, MVC)
 
-- **Purpose**: Manages driver data, onboarding, and statuses.
+- **Purpose**: Register students for academic year.
+- **Technology**:Fast API, Python.
+- **Responsibilities**:
+  - Student Registration.
+  - update the notification service.
+
+### 2. Teacher Service (Node.js, MVC)
+
+- **Purpose**: Teacher registration and assigning to course.
+- **Technology**: Node.js, Express, TypeScript.
+
+### 3. Student Service (Node.js, MVC)
+
+- **Purpose**: Register new students.
 - **Technology**: Node.js, Express, TypeScript.
 - **Responsibilities**:
-  - Driver registration and management.
-  - Real-time status updates (e.g., availability).
+  - Register new students.
+  - link students with course and teacher.
 
-### 2. User Service (Node.js, MVC)
+### 4. Notification Service (Node.js, MVC)
 
-- **Purpose**: Handles user authentication and profile management.
+- **Purpose**: Notify students of their current status.
 - **Technology**: Node.js, Express, TypeScript.
-- **Responsibilities**:
-  - User registration and login.
-  - Managing user profiles and preferences.
 
-### 3. Ride Service (Django, MTV)
-
-- **Purpose**: Manages ride requests, matching, and ride tracking.
-- **Technology**: Django, Python.
-- **Responsibilities**:
-  - Matching drivers to users based on proximity and availability.
-  - Ride status management (e.g., booked, ongoing, completed).
-
-### 4. Payment Service (Node.js, MVC)
-
-- **Purpose**: Processes payments and handles transactions securely.
-- **Technology**: Node.js, Express, TypeScript.
-- **Responsibilities**:
-  - Payment gateway integration.
-  - Transaction tracking and refunds.
-
-### 5. Notification Service (Node.js, MVC)
-
-- **Purpose**: Sends real-time notifications to users and drivers.
-- **Technology**: Node.js, Express, TypeScript.
-- **Responsibilities**:
-  - Multi-channel notifications (Email, Telegram).
-  - Customizable notification templates.
-
-### 6. Analytics and Reporting Service (Nest.js, MVC)
-
-- **Purpose**: Generates analytics and reports for business insights.
-- **Technology**: Nest.js, TypeScript.
-- **Responsibilities**:
-  - Collecting and analyzing service data.
-  - Generating usage reports and KPIs.
-
----
+<br />
+<br />
 
 ## Communication
 
@@ -115,20 +94,10 @@ All services are independent and follow the Model-View-Controller (MVC) architec
   - Each service maintains its own database for a decentralized approach.
   - APIs are used to share required data between services.
 
----
 
-## Technology Stack
 
-| Service                  | Technology            | Architecture |
-| ------------------------ | --------------------- | ------------ |
-| **Driver Service**       | Node.js, Express, MVC | MVC          |
-| **User Service**         | Node.js, Express, MVC | MVC          |
-| **Ride Service**         | Django, MTV           | MTV          |
-| **Payment Service**      | Node.js, Express, MVC | MVC          |
-| **Notification Service** | Node.js, Express, MVC | MVC          |
-| **Analytics Service**    | Nest.js, MVC          | MVC          |
-
----
+<br />
+<br />
 
 ## Scalability and Fault Tolerance
 
@@ -136,22 +105,20 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 - **Database Isolation**: Each service uses a dedicated database to ensure autonomy.
 - **Resilience**: Services are loosely coupled to prevent cascading failures.
 
----
-
 ## Security
 
-- **Authentication**: User and driver authentication via secure tokens (e.g., JWT).
+- **Authentication**: User and driver authentication via secure tokens
 - **Data Encryption**: All sensitive data is encrypted in transit and at rest.
 - **API Gateway**: Centralized API gateway for secure communication and routing.
 
----
+<br />
+<br />
 
 ## Installation and Deployment
 
 ### Prerequisites
 
 - Docker (recommended for containerized deployment).
-- Node.js, Python, and PostgreSQL installed locally (if not using Docker).
 
 ### Steps
 
@@ -165,24 +132,11 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 
 3. Run services:
 
-   - Using Docker Compose:
-     ```bash
-     docker-compose up
-     ```
-   - Or manually start each service:
-     ```bash
-     npm start # Node.js services
-     python manage.py runserver # Django service
-     ```
+    ```bash
+    docker-compose up
+    ```
 
-4. Access APIs via the centralized API Gateway or directly at their respective endpoints.
-
----
-
-## Future Improvements
-
-- **Event-Driven Architecture**: Introduce message queues for inter-service communication.
-- **Load Balancing**: Implement load balancers to distribute traffic.
-- **Push Notifications**: Integrate push notification services (e.g., Firebase).
-
-This README provides a comprehensive guide to the architecture, components, and setup of the Ride-Hailing Backend.
+4. Access APIs via the centralized API Gateway.
+    ```bash
+    http://localhost:8080/<<service>>
+    ```
