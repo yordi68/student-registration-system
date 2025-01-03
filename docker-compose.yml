@@ -1,5 +1,11 @@
-version: "3.8"
 services:
+  consul:
+    image: consul:1.15
+    container_name: consul
+    ports:
+      - "8500:8500"
+    command: "agent -dev -client=0.0.0.0"
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -20,12 +26,13 @@ services:
       context: ./student-service
     command: node /server.js
     ports:
-      - "8000:8000"
+      - "5000:5000"
     depends_on:
       rabbitmq:
         condition: service_healthy
     environment:
       RABBITMQ_HOST: rabbitmq
+      CONSUL_HOST: consul
 
   registration-service:
     build:
@@ -38,3 +45,21 @@ services:
         condition: service_healthy
     environment:
       RABBITMQ_HOST: rabbitmq
+      CONSUL_HOST: consul
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - consul
+    environment:
+      CONSUL_HOST: consul
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

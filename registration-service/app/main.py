@@ -1,16 +1,50 @@
 from fastapi import FastAPI
-from app.routes import router
-import pika
+import requests
 import os
+import pika
 import threading
 import time
+from app.routes import router  # Assuming you have routes defined in this module
 
+# FastAPI application instance
+app = FastAPI()
 
-# rabbitmq set up
+# Consul configuration
+CONSUL_HOST = os.getenv("CONSUL_HOST", "localhost")
+CONSUL_PORT = os.getenv("CONSUL_PORT", "8500")
+SERVICE_NAME = "registration-service"
+SERVICE_PORT = 8001
+
+# RabbitMQ configuration
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 QUEUE_NAME = "student_updates"
 
+def register_with_consul():
+    """Registers the service with Consul"""
+    try:
+        response = requests.put(
+            f"http://{CONSUL_HOST}:{CONSUL_PORT}/v1/agent/service/register",
+            json={
+                "Name": SERVICE_NAME,
+                "Address": "registration-service",
+                "Port": SERVICE_PORT,
+                "Check": {
+                    "HTTP": f"http://registration-service:{SERVICE_PORT}/health",
+                    "Interval": "10s",
+                },
+            },
+        )
+        # print(response.json)
+        if response.status_code == 200:
+            print(f"{SERVICE_NAME, SERVICE_PORT, CONSUL_HOST, CONSUL_PORT} registered with Consul")
+        else:
+            print(f"Failed to register {SERVICE_NAME} with Consul:", response.text)
+    except Exception as e:
+        print(f"Error registering {SERVICE_NAME} with Consul:", str(e))
+
+
 def start_rabbitmq_listener():
+    """Starts listening to RabbitMQ messages"""
     while True:
         try:
             connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
@@ -35,16 +69,25 @@ def start_rabbitmq_listener():
     channel.start_consuming()
 
 
-
-app = FastAPI()
-
-app.include_router(router, prefix="/api/registrations", tags=["Registrations"])
-
 @app.on_event("startup")
-def rabbitmq_startup():
+def startup_event():
+    """Handles startup tasks like Consul registration and RabbitMQ listener"""
+    register_with_consul()
     # Start RabbitMQ listener in a separate thread
     threading.Thread(target=start_rabbitmq_listener, daemon=True).start()
 
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "OK"}
+
+
 @app.get("/", tags=["Root"])
 async def read_root():
+    """Root endpoint"""
     return {"message": "Welcome to the Registration Service API"}
+
+
+# Include the registration-related routes
+app.include_router(router, prefix="/api/registrations", tags=["Registrations"])
