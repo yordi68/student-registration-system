@@ -1,11 +1,53 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, FastAPI
 from app.models import Registration, PyObjectId
 from app.database import registrations_collection
 from bson import ObjectId
 import pika
 import os
+import httpx
+
+# Define a dictionary to hold courses for each year
+courses_by_year = {
+    "1": [
+        "Introduction to Programming",
+        "Mathematics I",
+        "Physics I",
+        "English Composition",
+        "Introduction to Psychology"
+    ],
+    "2": [
+        "Data Structures and Algorithms",
+        "Mathematics II",
+        "Physics II",
+        "Object-Oriented Programming",
+        "Introduction to Sociology"
+    ],
+    "3": [
+        "Database Management Systems",
+        "Software Engineering",
+        "Operating Systems",
+        "Discrete Mathematics",
+        "Web Development"
+    ],
+    "4": [
+        "Machine Learning",
+        "Computer Networks",
+        "Mobile Application Development",
+        "Human-Computer Interaction",
+        "Capstone Project"
+    ],
+    "5": [
+        "Advanced Topics in Artificial Intelligence",
+        "Cloud Computing",
+        "Cybersecurity",
+        "Data Science and Big Data Analytics",
+        "Entrepreneurship and Innovation"
+    ]
+}
+
 
 router = APIRouter()
+app = FastAPI()
 
 # RabbitMQ Configuration
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
@@ -30,6 +72,13 @@ def publish_event(event: dict):
 # Create a new registration
 @router.post("/", response_description="Register a student", status_code=status.HTTP_201_CREATED)
 async def create_registration(registration: Registration):
+
+    # async with httpx.AsyncClient() as client:
+    #     response = await client.get(f'http://localhost:8080/student/api/students/email/{registration.student_email}')
+    #     response.raise_for_status()  # Raise an exception for HTTP errors
+    #     student_info = response.json()
+
+    # Insert the new registration data
     result = registrations_collection.insert_one(registration.model_dump(by_alias=True, exclude={"id"}))
     registration_id = str(result.inserted_id)
 
@@ -37,10 +86,11 @@ async def create_registration(registration: Registration):
     event = {
         "event": "RegistrationCreated",
         "registration_id": registration_id,
-        "student_id": registration.student_id,
-        "course_id": registration.course_id,
+        "student_email": registration.student_email,
+        "course_list": courses_by_year[registration.year],
         "registration_date": registration.registration_date,
     }
+    print(event)
     publish_event(event)
 
     return {"message": "Registration created successfully", "id": registration_id}
