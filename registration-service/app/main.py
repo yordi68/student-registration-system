@@ -40,11 +40,13 @@ app = FastAPI()
 
 app.include_router(router, prefix="/api/registrations", tags=["Registrations"])
 
+@app.get("/", tags=["Root"])
+async def read_root():
+    return {"message": "Welcome to the Registration Service API"}
+
 @app.on_event("startup")
 def rabbitmq_startup():
     # Start RabbitMQ listener in a separate thread
     threading.Thread(target=start_rabbitmq_listener, daemon=True).start()
 
-@app.get("/", tags=["Root"])
-async def read_root():
-    return {"message": "Welcome to the Registration Service API"}
+
