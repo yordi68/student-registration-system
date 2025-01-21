@@ -9,31 +9,39 @@ import time
 # rabbitmq set up
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 QUEUE_NAME = "student_updates"
+REGISTRATION_QUEUE_NAME = "registration_events"
 
 def start_rabbitmq_listener():
+    print("Inside function")
     while True:
         try:
+            print("Inside try.")
+            # Establish connection with RabbitMQ
             connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
             print("Registration Service Connected with RabbitMQ")
-            break
+            channel = connection.channel()
+
+            # Declare queues before consuming messages
+            channel.queue_declare(queue=QUEUE_NAME, durable=True)
+            channel.queue_declare(queue=REGISTRATION_QUEUE_NAME, durable=True)
+            print(f"Queues '{QUEUE_NAME}' and '{REGISTRATION_QUEUE_NAME}' declared successfully.")
+
+            # Callback function to process messages
+            def callback(ch, method, properties, body):
+                print("Received message:", body.decode())
+
+            # Start consuming messages from the queue
+            channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
+            print("Listening for messages...")
+            channel.start_consuming()
+
         except pika.exceptions.AMQPConnectionError:
             print("RabbitMQ not ready, retrying in 5 seconds...")
             time.sleep(5)
 
-    channel = connection.channel()
-    try:
-        channel.queue_declare(queue=QUEUE_NAME, durable=True)
-    except pika.exceptions.ChannelClosedByBroker as e:
-        print(f"Queue declaration failed: {e}")
-        return
-
-    def callback(ch, method, properties, body):
-        print("Received message:", body.decode())
-
-    channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=True)
-    print("Listening for messages...")
-    channel.start_consuming()
-
+        except Exception as e:
+            print(f"Error in RabbitMQ listener: {e}")
+            time.sleep(5)
 
 
 app = FastAPI()
