@@ -1,10 +1,31 @@
 import { connect } from 'amqplib';
 
-const RABBITMQ_HOST = 'localhost';
+const RABBITMQ_HOST = 'rabbitmq';
 const QUEUE_NAME = 'registration_events';
 const RETRY_INTERVAL = 5000; // Retry every 5 seconds
 const MAX_RETRIES = 10;
 
+async function sendNotification(e) {
+  const url = 'http://localhost:8080/student/api/students/email/'
+  console.log('Sending notification to user:', e);
+  try {
+    // Make a GET request
+    const response = await fetch(url);
+
+    // Check if the response is OK (status code 200-299)
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    // Parse the response as JSON
+    const data = await response.json();
+
+    // Log the fetched data
+    console.log("Fetched data:", data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
 
 async function connectToRabbitMQ(retries = 0) {
   try {
@@ -20,7 +41,7 @@ async function connectToRabbitMQ(retries = 0) {
         const event = JSON.parse(msg.content.toString());
         console.log(" [x] Received event:", event);
 
-        sendNotification(event);
+        // sendNotification(event);
 
         channel.ack(msg);
       }
