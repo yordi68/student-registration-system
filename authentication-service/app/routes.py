@@ -43,3 +43,25 @@ def login():
     }, jwt_secret, algorithm=jwt_algorithm)
     
     return jsonify({"token": token}), 200
+
+
+@auth_bp.route('/verify', methods=['GET'])
+def verify():
+    # Extract the token from the Authorization header
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return jsonify({"message": "Token is missing or invalid"}), 401
+    
+    token = auth_header.split(" ")[1]  # Remove "Bearer " prefix
+    
+    jwt_secret = current_app.config['JWT_SECRET_KEY']
+    jwt_algorithm = current_app.config['JWT_ALGORITHM']
+    
+    try:
+        # Decode and verify the JWT token
+        payload = jwt.decode(token, jwt_secret, algorithms=[jwt_algorithm])
+        return jsonify({"message": "Token is valid", "payload": payload}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token has expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 401
