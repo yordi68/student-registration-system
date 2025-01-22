@@ -50,6 +50,18 @@ services:
       RABBITMQ_HOST: rabbitmq
 
   
+  authentication-service:
+    build: 
+      context: ./authentication-service
+    command: python run.py
+    ports:
+      - "5002:5002"
+    depends_on:
+      - rabbitmq
+      - nginx
+    environment:
+      RABBITMQ_HOST: rabbitmq
+  
   nginx:
     restart: always
     image: nginx:latest
