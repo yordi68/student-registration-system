@@ -32,6 +32,6 @@ class Registration(BaseModel):
             "example": {
                 "student_email": "ketemayodahe@gmail.com",
                 "registration_date": "2024-12-01",
-                "year": "2024"
+                "year": "5"
             }
         }

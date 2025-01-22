@@ -50,8 +50,10 @@ app.include_router(router, prefix="/api/registrations", tags=["Registrations"])
 
 @app.on_event("startup")
 def rabbitmq_startup():
+    print("Starting RabbitMQ listener...")
     # Start RabbitMQ listener in a separate thread
     threading.Thread(target=start_rabbitmq_listener, daemon=True).start()
+    print("RabbitMQ listener started successfully.")
 
 @app.get("/", tags=["Root"])
 async def read_root():

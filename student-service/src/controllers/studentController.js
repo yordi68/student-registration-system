@@ -33,10 +33,13 @@ const getStudentById = async (req, res) => {
 };
 
 const getStudentByEmail = async (req, res) => {
+  console.log("Reached here....");
   try {
+    console.log("Reached try....");
     const student = await Student.findOne({ email: req.params.email });
+    console.log("....", student);
     if (!student) return res.status(404).json({ error: 'Student not found' });
-    res.status(200).json(student);
+    res.status(200).json({data: student});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

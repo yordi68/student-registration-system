@@ -5,6 +5,7 @@ from bson import ObjectId
 import pika
 import os
 import httpx
+import json
 
 # Define a dictionary to hold courses for each year
 courses_by_year = {
@@ -52,22 +53,57 @@ app = FastAPI()
 # RabbitMQ Configuration
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 QUEUE_NAME = "registration_events"
+STUDENT_API_URL="http://localhost:8080/student/api/students/email/"
+
+async def fetch_student_by_email(email: str):
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{STUDENT_API_URL}{email}")
+            print(f"Response: {response}")
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        # Handle HTTP errors (e.g., 404, 500)
+        raise HTTPException(status_code=e.response.status_code, detail="Student not found")
+    except Exception as e:
+        # Handle other errors (e.g., network issues)\
+        print(f"Error fetching student: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # Utility function to publish events to RabbitMQ
-def publish_event(event: dict):
+async def publish_event(event: dict):
     try:
+        # Establish connection
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
         channel = connection.channel()
+
+        # Declare the queue (idempotent operation)
         channel.queue_declare(queue=QUEUE_NAME, durable=True)
+
+        # student = await fetch_student_by_email(event["student_email"]);
+        # print(student)
+        # print(student["error"])
+        
         channel.basic_publish(
             exchange="",
             routing_key=QUEUE_NAME,
-            body=str(event),
-            properties=pika.BasicProperties(delivery_mode=2),  # Make message persistent
+            body=json.dumps(event),
+            properties=pika.BasicProperties(
+                delivery_mode=2,  # Make message persistent
+            ),
         )
-        connection.close()
+
+        print(f"Published event: {event}")
+
+    except pika.exceptions.AMQPConnectionError as e:
+        print(f"Failed to connect to RabbitMQ: {e}")
     except Exception as e:
         print(f"Error publishing message to RabbitMQ: {e}")
+    finally:
+        # Close the connection
+        if 'connection' in locals() and connection.is_open:
+            connection.close()
 
 # Create a new registration
 @router.post("/", response_description="Register a student", status_code=status.HTTP_201_CREATED)
@@ -91,7 +127,7 @@ async def create_registration(registration: Registration):
         "registration_date": registration.registration_date,
     }
     print(event)
-    publish_event(event)
+    await publish_event(event)
 
     return {"message": "Registration created successfully", "id": registration_id}
 
@@ -127,7 +163,7 @@ async def update_registration(id: str, registration: Registration):
         "course_id": registration.course_id,
         "registration_date": registration.registration_date,
     }
-    publish_event(event)
+    await publish_event(event)
 
     return {"message": "Registration updated successfully"}
 
@@ -143,6 +179,6 @@ async def delete_registration(id: str):
         "event": "RegistrationDeleted",
         "registration_id": id,
     }
-    publish_event(event)
+    await publish_event(event)
 
     return {"message": "Registration deleted successfully"}

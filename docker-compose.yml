@@ -26,17 +26,6 @@ services:
     environment:
       RABBITMQ_HOST: rabbitmq
 
-  notification-service:
-    build:
-      context: ./notification-service
-    command: node /server.js
-    ports:
-      - "8002:8002"
-    depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_HOST: rabbitmq
-
   registration-service:
     build:
       context: ./registration-service
@@ -48,6 +37,18 @@ services:
       - nginx
     environment:
       RABBITMQ_HOST: rabbitmq
+
+  notification-service:
+    build:
+      context: ./notification-service
+    command: node /server.js
+    ports:
+      - "8002:8002"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+
   
   nginx:
     restart: always
