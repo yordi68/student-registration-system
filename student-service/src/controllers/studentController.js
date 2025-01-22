@@ -1,4 +1,4 @@
-import Student from '../models/studentModel.js';
+import Student from "../models/studentModel.js";
 
 // Create a new student
 const createStudent = async (req, res) => {
@@ -25,8 +25,21 @@ const getAllStudents = async (req, res) => {
 const getStudentById = async (req, res) => {
   try {
     const student = await Student.findById(req.params.id);
-    if (!student) return res.status(404).json({ error: 'Student not found' });
+    if (!student) return res.status(404).json({ error: "Student not found" });
     res.status(200).json(student);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getStudentByEmail = async (req, res) => {
+  console.log("Reached here....");
+  try {
+    console.log("Reached try....");
+    const student = await Student.findOne({ email: req.params.email });
+    console.log("....", student);
+    if (!student) return res.status(404).json({ error: "Student not found" });
+    res.status(200).json({ data: student });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -38,7 +51,7 @@ const updateStudent = async (req, res) => {
     const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    if (!student) return res.status(404).json({ error: 'Student not found' });
+    if (!student) return res.status(404).json({ error: "Student not found" });
     res.status(200).json(student);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -49,8 +62,8 @@ const updateStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
   try {
     const student = await Student.findByIdAndDelete(req.params.id);
-    if (!student) return res.status(404).json({ error: 'Student not found' });
-    res.status(200).json({ message: 'Student deleted' });
+    if (!student) return res.status(404).json({ error: "Student not found" });
+    res.status(200).json({ message: "Student deleted" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -60,6 +73,7 @@ export default {
   createStudent,
   getAllStudents,
   getStudentById,
+  getStudentByEmail,
   updateStudent,
   deleteStudent,
 };
