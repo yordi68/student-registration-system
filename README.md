@@ -99,10 +99,10 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 |--------------------------|-----------------------------|--------------------|---------------------------|------------------|-----------------------|-------------------------------------|
 | `rabbitmq`              | `rabbitmq:3-management`    | `rabbitmq`         | N/A                       | `5672:5672`, `15672:15672` | N/A                   | `RABBITMQ_DEFAULT_USER=guest`      |
 |                          |                             |                    |                           |                  |                       | `RABBITMQ_DEFAULT_PASS=guest`      |
-| `student-service`       | student-service                        | student-service               | `./student-service`       | `8000:8000`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
-| `registration-service`  | registration-service                        | registration-service               | `./registration-service`  | `8001:8001`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
-| `notification-service`  | notification-service                        | notification-service               | `./notification-service`  | `8002:8002`     | `rabbitmq`            | `RABBITMQ_HOST=rabbitmq`           |
-| `authentication-service`| authentication-service                        | authentication-service               | `./authentication-service`| `5002:5002`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
+| `student-service`       | student-service                        | N/A                | `./student-service`       | `8000:8000`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
+| `registration-service`  | registration-service                        | N/A                 | `./registration-service`  | `8001:8001`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
+| `notification-service`  | notification-service                        | N/A                | `./notification-service`  | `8002:8002`     | `rabbitmq`            | `RABBITMQ_HOST=rabbitmq`           |
+| `authentication-service`| authentication-service                        | N/A                 | `./authentication-service`| `5002:5002`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
 | `nginx`                 | `nginx:latest`             | `nginx`            | N/A                       | `8080:80`       | N/A                   | N/A                                 |
 
 ## Installation and Deployment
