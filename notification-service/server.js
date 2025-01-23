@@ -9,6 +9,7 @@ const token = process.env.TOKEN;
 const EMAIL_KEY = 'f5CIAOozH3wFDf_cJ';
 const SERVICE_ID = 'service_6o76805';
 const TEMPLATE_ID = 'template_zawzkx5';
+const SMTP_PASS = process.env.SMTP_PASS
 
 const sendEmail = (email) => {
   const transporter = nodemailer.createTransport({
@@ -18,7 +19,7 @@ const sendEmail = (email) => {
     secure: false,
     auth: {
       user: 'ketemayodahe@gmail.com',
-      pass: 'eswp aimr ewad symx'
+      pass:'eswp aimr ewad symx'
     },
   });
   console.log("Sending email...", email);
