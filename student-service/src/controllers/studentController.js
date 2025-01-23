@@ -39,7 +39,7 @@ const getStudentByEmail = async (req, res) => {
     const student = await Student.findOne({ email: req.params.email });
     console.log("....", student);
     if (!student) return res.status(404).json({ error: 'Student not found' });
-    res.status(200).json({data: student});
+    res.status(200).json(student);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -6,6 +6,9 @@ import pika
 import os
 import httpx
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Define a dictionary to hold courses for each year
 courses_by_year = {
@@ -53,18 +56,22 @@ app = FastAPI()
 # RabbitMQ Configuration
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 QUEUE_NAME = "registration_events"
-STUDENT_API_URL="http://localhost:8080/student/api/students/email/"
+STUDENT_API_URL="http://nginx/student/api/students/email/"
+token = os.getenv("TOKEN")
 
 async def fetch_student_by_email(email: str):
+    headers = {
+        "Authorization": f"Bearer {token}",
+    }
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{STUDENT_API_URL}{email}")
+            response = await client.get(f"{STUDENT_API_URL}{email}", headers=headers)
             print(f"Response: {response}")
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:
         # Handle HTTP errors (e.g., 404, 500)
-        raise HTTPException(status_code=e.response.status_code, detail="Student not found")
+        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
     except Exception as e:
         # Handle other errors (e.g., network issues)\
         print(f"Error fetching student: {e}")
@@ -81,9 +88,14 @@ async def publish_event(event: dict):
         # Declare the queue (idempotent operation)
         channel.queue_declare(queue=QUEUE_NAME, durable=True)
 
-        # student = await fetch_student_by_email(event["student_email"]);
-        # print(student)
-        # print(student["error"])
+        print("fetching student")
+        student = await fetch_student_by_email(event["student_email"]);
+        print(student)
+
+        if "error" in student:
+            print(f"Error in student data: {student['error']}")
+            return;
+        event["student_name"] = student["name"]
         
         channel.basic_publish(
             exchange="",
