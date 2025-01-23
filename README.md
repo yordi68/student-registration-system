@@ -2,17 +2,44 @@
 
 ## Overview
 
-This Student Management System is built using Nvarious languages and frameworks and follows a **microservice architecture** to keep things simple and flexible. The system is divided into separate independent services, each handling specific tasks.
+This Student Management System is built using Node.js and follows a **microservice architecture** to keep things simple and flexible. The system is divided into separate independent services, each handling specific tasks. Each service uses the Model-View-Controller (MVC) architectural pattern.
 
-The system has 4 services, namely the Student, Registration, Authentication and Notidication services. Registration Service is tasked with registering or updating students information about the accademic year. Authentication Service is involved in authenticating users. Student service is where all the infomration is stored about the student. Notification Service sends reminders and announcements to the students.
+The system has 4 services, namely the Student, Registration, Teacher and Notidication services. Registration Service is tasked with registering or updating students information about the accademic year. Teacher Service is involved in teacher infomration. Student service is where all the infomration is stored about the student. Notification Service sends updates, reminders and announcements to the students.
 
 ## Architecture
 
 ### System Architecture Diagram
 
 Microservice Architecture for Student Management System
+```plaintext
 
-![alt text](<Blank diagram (2).png>)
+                    +-----------------------+
+                    |  Notification Service |
+                    |                       |
+                    | Sends updates,        |
+                    | reminders, and        |
+                    | announcements         |
+                    +-----------^-----------+
+                                |
+                                |
+    +----------------------+    |    +-----------------------+
+    |    Student Service   |<---+--->|  Registration Service |
+    | Stores all student   |         | Manages registration  |
+    | information          |         | and academic year     |
+    |                      |         | updates               |
+    |                      |         |                       |
+    +-----------^----------+         +-----------------------+
+                |                                      
+                |
+                |_______________
+                                |
+                    +-----------+-----------+
+                    |    Teacher Service    |
+                    | Manages teacher       |
+                    | information and       |
+                    | schedules             |
+                    +-----------------------+
+```
 All services are independent and follow the Model-View-Controller (MVC) architecture. Communication between services is facilitated through well-defined APIs.
 
 ### Architectural Patterns
@@ -35,10 +62,10 @@ All services are independent and follow the Model-View-Controller (MVC) architec
   - Student Registration.
   - update the notification service.
 
-### 2. Authentication Service (Node.js, MVC)
+### 2. Teacher Service (Node.js, MVC)
 
-- **Purpose**: Check that authenticated users access the system.
-- **Technology**: Python, Flask.
+- **Purpose**: Teacher registration and assigning to course.
+- **Technology**: Node.js, Express, TypeScript.
 
 ### 3. Student Service (Node.js, MVC)
 
@@ -57,8 +84,6 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 <br />
 
 ## Communication
-
-![alt text](<Blank diagram.png>)
 
 - **Inter-Service Communication**:
 
@@ -83,6 +108,7 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 ## Security
 
 - **Authentication**: User and driver authentication via secure tokens
+- **Data Encryption**: All sensitive data is encrypted in transit and at rest.
 - **API Gateway**: Centralized API gateway for secure communication and routing.
 
 <br />
@@ -107,7 +133,7 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 3. Run services:
 
     ```bash
-    docker-compose up --build
+    docker-compose up
     ```
 
 4. Access APIs via the centralized API Gateway.
