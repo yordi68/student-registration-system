@@ -1,31 +1,52 @@
 import { connect } from 'amqplib';
+import nodemailer from 'nodemailer';
 
 const RABBITMQ_HOST = 'rabbitmq';
 const QUEUE_NAME = 'registration_events';
-const RETRY_INTERVAL = 5000; // Retry every 5 seconds
+const RETRY_INTERVAL = 5000;
 const MAX_RETRIES = 10;
+const token = process.env.TOKEN;
+const EMAIL_KEY = 'f5CIAOozH3wFDf_cJ';
+const SERVICE_ID = 'service_6o76805';
+const TEMPLATE_ID = 'template_zawzkx5';
 
-async function sendNotification(e) {
-  const url = 'http://localhost:8080/student/api/students/email/'
-  console.log('Sending notification to user:', e);
-  try {
-    // Make a GET request
-    const response = await fetch(url);
+const sendEmail = (email) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'ketemayodahe@gmail.com',
+      pass: 'eswp aimr ewad symx'
+    },
+  });
+  console.log("Sending email...", email);
 
-    // Check if the response is OK (status code 200-299)
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+  const mailOptions = {
+    from: 'buleboyyy2@gmail.com',
+    to: email.student_email,
+    subject: 'Course Registration Confirmation',
+    html: `
+      <p>Hello ${email.student_name},</p>
+      <p>You have registered for the new year </p>
+      <p style="padding: 12px; border-left: 4px solid #d0d0d0; font-style: italic;">
+        ${email.message}
+      </p>
+      <p>
+        Good luck on you studies !!
+      </p>
+    `
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log('FAILED...', error);
+    } else {
+      console.log('SUCCESS!', info.response);
     }
-
-    // Parse the response as JSON
-    const data = await response.json();
-
-    // Log the fetched data
-    console.log("Fetched data:", data);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-}
+  });
+};
 
 async function connectToRabbitMQ(retries = 0) {
   try {
@@ -40,6 +61,14 @@ async function connectToRabbitMQ(retries = 0) {
       if (msg !== null) {
         const event = JSON.parse(msg.content.toString());
         console.log(" [x] Received event:", event);
+        const courses = event.course_list.join(", ");
+        const message = "You have successfully registered for the following courses: " + courses + ". Thank you!";
+
+        sendEmail({
+          student_email: event.student_email,
+          student_name: event.student_name,
+          message: message,
+        })
 
         // sendNotification(event);
 
