@@ -37,9 +37,20 @@ services:
       - nginx
     environment:
       RABBITMQ_HOST: rabbitmq
-  
+
+  notification-service:
+    build:
+      context: ./notification-service
+    command: node /server.js
+    ports:
+      - "8002:8002"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+
   authentication-service:
-    build: 
+    build:
       context: ./authentication-service
     command: python run.py
     ports:
@@ -49,7 +60,7 @@ services:
       - nginx
     environment:
       RABBITMQ_HOST: rabbitmq
-  
+
   nginx:
     restart: always
     image: nginx:latest
