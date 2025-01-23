@@ -23,9 +23,16 @@ All services are independent and follow the Model-View-Controller (MVC) architec
   - **View**: Responsible for presenting the output (not directly applicable for backend APIs).
   - **Controller**: Processes incoming requests and delegates logic to the service layer.
 
-
-
 ## Services Overview
+
+### Service Table
+
+| Service Name           | Description                                | Endpoint                  | Dependencies            |
+|------------------------|--------------------------------------------|---------------------------|-------------------------|
+| Student Registration    | Manages student information and registration | `/api/students`           | Database Service        |
+| Authentication         | Handles user authentication and authorization | `/auhtentication/api/auth`               | User Service            |
+| Year Registration     | Registers students to the new year      | `/api/registration/api/registration`            | Student Registration Service |
+| Notification Service    | Sends notifications (emails)          | `NONE`      | Student Registration, Course Registration |
 
 ### 1. Registration Service (FastAPI, MVC)
 
@@ -69,8 +76,6 @@ All services are independent and follow the Model-View-Controller (MVC) architec
   - Each service maintains its own database for a decentralized approach.
   - APIs are used to share required data between services.
 
-
-
 <br />
 <br />
 
@@ -87,6 +92,18 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 
 <br />
 <br />
+
+### Docker Compos Table
+
+| **Service Name**         | **Image**                   | **Container Name** | **Build Context**          | **Ports**        | **Depends On**        | **Environment Variables**           |
+|--------------------------|-----------------------------|--------------------|---------------------------|------------------|-----------------------|-------------------------------------|
+| `rabbitmq`              | `rabbitmq:3-management`    | `rabbitmq`         | N/A                       | `5672:5672`, `15672:15672` | N/A                   | `RABBITMQ_DEFAULT_USER=guest`      |
+|                          |                             |                    |                           |                  |                       | `RABBITMQ_DEFAULT_PASS=guest`      |
+| `student-service`       | N/A                         | N/A                | `./student-service`       | `8000:8000`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
+| `registration-service`  | N/A                         | N/A                | `./registration-service`  | `8001:8001`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
+| `notification-service`  | N/A                         | N/A                | `./notification-service`  | `8002:8002`     | `rabbitmq`            | `RABBITMQ_HOST=rabbitmq`           |
+| `authentication-service`| N/A                         | N/A                | `./authentication-service`| `5002:5002`     | `rabbitmq`, `nginx`   | `RABBITMQ_HOST=rabbitmq`           |
+| `nginx`                 | `nginx:latest`             | `nginx`            | N/A                       | `8080:80`       | N/A                   | N/A                                 |
 
 ## Installation and Deployment
 
@@ -111,6 +128,7 @@ All services are independent and follow the Model-View-Controller (MVC) architec
     ```
 
 4. Access APIs via the centralized API Gateway.
+
     ```bash
     http://localhost:8080/<<service>>
     ```
