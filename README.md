@@ -12,7 +12,7 @@ The system has 4 services, namely the Student, Registration, Authentication and 
 
 Microservice Architecture for Student Management System
 
-![alt text](<Blank diagram (2)-1.png>)
+![alt text](<Blank diagram (3).png>)
 All services are independent and follow the Model-View-Controller (MVC) architecture. Communication between services is facilitated through well-defined APIs.
 
 ### Architectural Patterns
@@ -64,9 +64,6 @@ All services are independent and follow the Model-View-Controller (MVC) architec
 <br />
 
 ## Communication
-
-![alt text](<Blank diagram.png>)
-
 - **Inter-Service Communication**:
 
   - Services communicate via REST APIs.
